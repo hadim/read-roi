@@ -4,8 +4,6 @@
 
 Read ROI files .zip or .roi generated with ImageJ. Code is largely inspired from : http://rsb.info.nih.gov/ij/developer/source/ij/io/RoiDecoder.java.html
 
-Developed for Python 3.4 and more but should easly work on Python 2.7.
-
 ## Functions
 
 ```python
