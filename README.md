@@ -1,6 +1,6 @@
-# read_roi
+# read-roi
 
-[![PyPI version](https://img.shields.io/pypi/v/read_roi.svg?maxAge=2591000)](https://pypi.org/project/read_roi/)
+[![PyPI version](https://img.shields.io/pypi/v/read-roi.svg?maxAge=2591000)](https://pypi.org/project/read-roi/)
 
 Read ROI files .zip or .roi generated with ImageJ. Code is largely inspired from : http://rsb.info.nih.gov/ij/developer/source/ij/io/RoiDecoder.java.html
 
@@ -29,13 +29,13 @@ rois = read_roi_zip(roi_zip_path)
 
 ## Install
 
-`pip install read_roi`
+`pip install read-roi`
 
 Or you can use Anaconda and `conda-forge` :
 
 ```
 conda config --add channels conda-forge
-conda install read_roi
+conda install read-roi
 ```
 
 ## License
@@ -51,4 +51,7 @@ Under BSD license. See [LICENSE](LICENSE).
 - Modify version number in `read_roi/__init__.py`
 - Commit and push changes
 - Make Github release
-- Create and upload packages : `python setup.py sdist bdist_wheel upload`
+- Create packages : `python setup.py sdist bdist_wheel`
+- Upload packages : `twine dist/*`
+- Update `conda-forge` recipe.
+
