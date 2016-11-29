@@ -51,4 +51,4 @@ Under BSD license. See [LICENSE](LICENSE).
 - Modify version number in `read_roi/__init__.py`
 - Commit and push changes
 - Make Github release
-- Create and upload packages : `python setup.py sdist bdist_wheel uploadl`
+- Create and upload packages : `python setup.py sdist bdist_wheel upload`
