@@ -23,7 +23,7 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
-setup(name='read_roi',
+setup(name='read-roi',
       version=find_version("read_roi", "__init__.py"),
       author='Hadrien Mary',
       author_email='hadrien.mary@gmail.com',
