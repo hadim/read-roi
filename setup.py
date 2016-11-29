@@ -29,7 +29,7 @@ setup(name='read-roi',
       author_email='hadrien.mary@gmail.com',
       description='Read ROI files .zip or .roi generated with ImageJ.',
       long_description=read('README.md'),
-      url='https://github.com/hadim/read_roi/',
+      url='https://github.com/hadim/read-roi/',
       packages=find_packages(),
       classifiers=[
               'Development Status :: 5 - Production/Stable',
