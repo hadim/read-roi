@@ -23,15 +23,6 @@ rois = read_roi_zip(roi_zip_path)
 - Most of "normal" ROI file should work.
 - Feel free to hack it and send me modifications.
 
-## Changelog
-
-- 31.10.2013 :
-    - initial commit
-
-- 16.11.2013 :
-    - handle ROIs outside borders
-    - can now return negative coordinates
-
 ## Requirements
 
 - Python > 2.7 and > 3.4
