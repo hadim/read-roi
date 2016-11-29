@@ -48,7 +48,7 @@ Under BSD license. See [LICENSE](LICENSE).
 
 ## How to release a new version
 
-- Modify version number in `pygraphml/__init__.py`
+- Modify version number in `read_roi/__init__.py`
 - Commit and push changes
 - Make Github release
 - Create and upload packages : `python setup.py sdist bdist_wheel uploadl`
