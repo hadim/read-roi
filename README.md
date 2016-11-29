@@ -52,6 +52,6 @@ Under BSD license. See [LICENSE](LICENSE).
 - Commit and push changes
 - Make Github release
 - Create packages : `python setup.py sdist bdist_wheel`
-- Upload packages : `twine dist/*`
+- Upload packages : `twine upload dist/*`
 - Update `conda-forge` recipe.
 
