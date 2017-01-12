@@ -25,7 +25,7 @@ rois = read_roi_zip(roi_zip_path)
 
 ## Requirements
 
-- Python > 2.7 and > 3.4
+- Python 3.4 and above
 
 ## Install
 
