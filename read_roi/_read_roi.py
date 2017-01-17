@@ -297,11 +297,13 @@ def read_roi_file(fpath):
     return {name: roi}
 
 
-def read_roi_zip(zip_path):
+def read_roi_zip(zip_path,preserveOrder=False):
     """
     """
     rois = {}
     zf = zipfile.ZipFile(zip_path)
     for n in zf.namelist():
         rois.update(read_roi_file(zf.open(n)))
+    if preserveOrder:
+        return [rois[x[:-4]] for x in zf.namelist()]
     return rois
