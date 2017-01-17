@@ -300,7 +300,8 @@ def read_roi_file(fpath):
 def read_roi_zip(zip_path):
     """
     """
-    rois = {}
+    from collections import OrderedDict
+    rois = OrderedDict()
     zf = zipfile.ZipFile(zip_path)
     for n in zf.namelist():
         rois.update(read_roi_file(zf.open(n)))
