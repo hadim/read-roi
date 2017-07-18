@@ -149,7 +149,7 @@ def read_roi_file(fpath):
 
     sub_pixel_resolution = (options == OPTIONS['SUB_PIXEL_RESOLUTION']) and version >= 222
     draw_offset = sub_pixel_resolution and (options == OPTIONS['DRAW_OFFSET'])
-    sub_pixel_rect = version >= 223 and sub_pixel_resolution and (roi_type == ROI_TYPE['rect'] or roi_type == ROI_TYPE['oval'])
+    sub_pixel_rect = version >= 223 and sub_pixel_resolution and (type == ROI_TYPE['rect'] or type == ROI_TYPE['oval'])
 
     # Untested
     if sub_pixel_rect:
