@@ -48,10 +48,7 @@ Under BSD license. See [LICENSE](LICENSE).
 
 ## How to release a new version
 
-- Modify version number in `read_roi/__init__.py`
-- Commit and push changes
-- Make Github release
-- Create packages : `python setup.py sdist bdist_wheel`
-- Upload packages : `twine upload dist/*`
+- Run `python release.py`
+- Create and upload packages : `python setup.py sdist bdist_wheel && twine upload dist/*`
 - Update `conda-forge` recipe.
 
