@@ -88,8 +88,7 @@ print("* Tag new version")
 os.system("git tag \"{}-{}\"".format(name, new_version))
 
 print("* Bump to next development cycle")
-dev_version = semver.bump_patch(new_version + "-dev")
-os.system("git commit -am \"Bump to next development cycle\"")
+dev_version = semver.bump_patch(new_version) + "-dev"
 
 print("* Write dev version to \"{}\"".format(setup_cfg_path))
 config['metadata']['version'] = dev_version
@@ -99,3 +98,5 @@ with open(setup_cfg_path, 'w') as configfile:
 print("* Write dev version to \"{}\"".format(version_file_path))
 with open(version_file_path, 'w') as versionfile:
 	versionfile.write("__version__ = \"{}\"".format(dev_version))
+
+os.system("git commit -am \"Bump to next development cycle\"")
