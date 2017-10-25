@@ -87,6 +87,8 @@ os.system("git commit -am \"Release {}-{}\"".format(name, new_version))
 print("* Tag new version")
 os.system("git tag \"{}-{}\"".format(name, new_version))
 
+os.system("python setup.py sdist bdist_wheel")
+
 print("* Bump to next development cycle")
 dev_version = semver.bump_patch(new_version) + "-dev"
 
