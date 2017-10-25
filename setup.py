@@ -1,7 +1,8 @@
 from setuptools import setup
 from setuptools import find_packages
 
-setup(packages=find_packages(),
+setup(author_email='hadrien.mary@gmail.com',
+	  packages=find_packages(),
       classifiers=[
               'Development Status :: 5 - Production/Stable',
               'Intended Audience :: Developers',
