@@ -148,6 +148,7 @@ def read_roi_file(fpath):
     hdr2Offset = get_int(data, OFFSET['HEADER2_OFFSET'])
 
     sub_pixel_resolution = (options == OPTIONS['SUB_PIXEL_RESOLUTION']) and version >= 222
+    sub_pixel_resolution = False
     draw_offset = sub_pixel_resolution and (options == OPTIONS['DRAW_OFFSET'])
     sub_pixel_rect = version >= 223 and sub_pixel_resolution and (type == ROI_TYPE['rect'] or type == ROI_TYPE['oval'])
 
