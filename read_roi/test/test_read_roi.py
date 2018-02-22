@@ -28,3 +28,17 @@ def test_point():
     fname = load_data("point")
     data = read_roi.read_roi_file(fname)
     TestCase().assertDictEqual(data, true_data)
+
+
+def test_line():
+    ""
+    true_data = {'point': {'n': 1,
+                           'name': 'point',
+                           'position': {'channel': 1, 'frame': 1, 'slice': 1},
+                           'type': 'freeroi',
+                           'x': [68],
+                           'y': [77]}}
+
+    fname = load_data("line")
+    data = read_roi.read_roi_file(fname)
+    TestCase().assertDictEqual(data, true_data)
