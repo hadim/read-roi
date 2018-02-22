@@ -1,6 +1,7 @@
 import os
 import struct
 import zipfile
+import logging
 
 __all__ = ['read_roi_file', 'read_roi_zip']
 
@@ -114,8 +115,10 @@ def read_roi_file(fpath):
         fp.close()
         name = os.path.splitext(os.path.basename(fpath))[0]
     else:
-        # raise an error
+        logging.error("Can't read {}".format(fpath))
         return None
+
+    logging.debug("Read ROI for {}".format(name))
 
     size = len(data)
     code = '>'
@@ -147,28 +150,33 @@ def read_roi_file(fpath):
     position = get_int(data, OFFSET['POSITION'])
     hdr2Offset = get_int(data, OFFSET['HEADER2_OFFSET'])
 
-    sub_pixel_resolution = (options == OPTIONS['SUB_PIXEL_RESOLUTION']) and version >= 222
+    sub_pixel_resolution = (
+        options == OPTIONS['SUB_PIXEL_RESOLUTION']) and version >= 222
     #sub_pixel_resolution = False
     draw_offset = sub_pixel_resolution and (options == OPTIONS['DRAW_OFFSET'])
     #draw_offset = False
-    sub_pixel_rect = version >= 223 and sub_pixel_resolution and (roi_type == ROI_TYPE['rect'] or roi_type == ROI_TYPE['oval'])
+    sub_pixel_rect = version >= 223 and sub_pixel_resolution and (
+        roi_type == ROI_TYPE['rect'] or roi_type == ROI_TYPE['oval'])
     #sub_pixel_rect = False
-    
+
     # Untested
     if sub_pixel_rect:
-        xd = getFloat(data, OFFSET['XD']);
-        yd = getFloat(data, OFFSET['YD']);
-        widthd = getFloat(data, OFFSET['WIDTHD']);
-        heightd = getFloat(data, OFFSET['HEIGHTD']);
+        xd = getFloat(data, OFFSET['XD'])
+        yd = getFloat(data, OFFSET['YD'])
+        widthd = getFloat(data, OFFSET['WIDTHD'])
+        heightd = getFloat(data, OFFSET['HEIGHTD'])
 
     # Untested
     if hdr2Offset > 0 and hdr2Offset + HEADER_OFFSET['IMAGE_SIZE'] + 4 <= size:
         channel = get_int(data, hdr2Offset + HEADER_OFFSET['C_POSITION'])
         slice = get_int(data, hdr2Offset + HEADER_OFFSET['Z_POSITION'])
         frame = get_int(data, hdr2Offset + HEADER_OFFSET['T_POSITION'])
-        overlayLabelColor = get_int(data, hdr2Offset + HEADER_OFFSET['OVERLAY_LABEL_COLOR'])
-        overlayFontSize = get_short(data, hdr2Offset + HEADER_OFFSET['OVERLAY_FONT_SIZE'])
-        imageOpacity = get_byte(data, hdr2Offset + HEADER_OFFSET['IMAGE_OPACITY'])
+        overlayLabelColor = get_int(
+            data, hdr2Offset + HEADER_OFFSET['OVERLAY_LABEL_COLOR'])
+        overlayFontSize = get_short(
+            data, hdr2Offset + HEADER_OFFSET['OVERLAY_FONT_SIZE'])
+        imageOpacity = get_byte(
+            data, hdr2Offset + HEADER_OFFSET['IMAGE_OPACITY'])
         imageSize = get_int(data, hdr2Offset + HEADER_OFFSET['IMAGE_SIZE'])
 
     is_composite = get_int(data, OFFSET['SHAPE_ROI_SIZE']) > 0
@@ -205,7 +213,7 @@ def read_roi_file(fpath):
         y1 = get_float(data, OFFSET['Y1'])
         x2 = get_float(data, OFFSET['X2'])
         y2 = get_float(data, OFFSET['Y2'])
-    
+
         if subtype == SUBTYPES['ARROW']:
             # Not implemented
             pass
@@ -247,7 +255,7 @@ def read_roi_file(fpath):
 
         if roi_type == ROI_TYPE['polygon']:
             roi = {'type': 'polygon'}
-            
+
         elif roi_type == ROI_TYPE['freehand']:
             roi = {'type': 'freehand'}
             if subtype == SUBTYPES['ELLIPSE']:
@@ -255,7 +263,8 @@ def read_roi_file(fpath):
                 ey1 = get_float(data, OFFSET['Y1'])
                 ex2 = get_float(data, OFFSET['X2'])
                 ey2 = get_float(data, OFFSET['Y2'])
-                roi['aspect_ratio'] = get_float(data, OFFSET['ELLIPSE_ASPECT_RATIO'])
+                roi['aspect_ratio'] = get_float(
+                    data, OFFSET['ELLIPSE_ASPECT_RATIO'])
                 roi.update(dict(ex1=ex1, ey1=ey1, ex2=ex2, ey2=ey2))
 
         elif roi_type == ROI_TYPE['traced']:
