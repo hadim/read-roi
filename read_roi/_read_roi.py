@@ -151,18 +151,18 @@ def read_roi_file(fpath):
     position = get_int(data, OFFSET['POSITION'])
     hdr2Offset = get_int(data, OFFSET['HEADER2_OFFSET'])
 
-    logging.debug(f"n_coordinates: {n_coordinates}")
-    logging.debug(f"position: {position}")
-    logging.debug(f"options: {options}")
+    logging.debug("n_coordinates: {}".format(n_coordinates))
+    logging.debug("position: {}".format(position))
+    logging.debug("options: {}".format(options))
 
     sub_pixel_resolution = (options == OPTIONS['SUB_PIXEL_RESOLUTION']) and version >= 222
     draw_offset = sub_pixel_resolution and (options == OPTIONS['DRAW_OFFSET'])
     sub_pixel_rect = version >= 223 and sub_pixel_resolution and (
         roi_type == ROI_TYPE['rect'] or roi_type == ROI_TYPE['oval'])
 
-    logging.debug(f"sub_pixel_resolution: {sub_pixel_resolution}")
-    logging.debug(f"draw_offset: {draw_offset}")
-    logging.debug(f"sub_pixel_rect: {sub_pixel_rect}")
+    logging.debug("sub_pixel_resolution: {}".format(sub_pixel_resolution))
+    logging.debug("draw_offset: {}".format(draw_offset))
+    logging.debug("sub_pixel_rect: {}".format(sub_pixel_rect))
 
     # Untested
     if sub_pixel_rect:
