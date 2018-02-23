@@ -99,7 +99,8 @@ def get_int(data, base):
 
 
 def get_float(data, base):
-    return float(get_int(data, base))
+    s = struct.pack('I', get_int(data, base))
+    return struct.unpack('f', s)[0]
 
 
 def read_roi_file(fpath):
@@ -118,7 +119,7 @@ def read_roi_file(fpath):
         logging.error("Can't read {}".format(fpath))
         return None
 
-    logging.debug("Read ROI for {}".format(name))
+    logging.debug("Read ROI for \"{}\"".format(name))
 
     size = len(data)
     code = '>'
@@ -145,19 +146,23 @@ def read_roi_file(fpath):
     right = get_short(data, OFFSET['RIGHT'])
     width = right - left
     height = bottom - top
-    n = get_short(data, OFFSET['N_COORDINATES'])
+    n_coordinates = get_short(data, OFFSET['N_COORDINATES'])
     options = get_short(data, OFFSET['OPTIONS'])
     position = get_int(data, OFFSET['POSITION'])
     hdr2Offset = get_int(data, OFFSET['HEADER2_OFFSET'])
 
-    sub_pixel_resolution = (
-        options == OPTIONS['SUB_PIXEL_RESOLUTION']) and version >= 222
-    #sub_pixel_resolution = False
+    logging.debug(f"n_coordinates: {n_coordinates}")
+    logging.debug(f"position: {position}")
+    logging.debug(f"options: {options}")
+
+    sub_pixel_resolution = (options == OPTIONS['SUB_PIXEL_RESOLUTION']) and version >= 222
     draw_offset = sub_pixel_resolution and (options == OPTIONS['DRAW_OFFSET'])
-    #draw_offset = False
     sub_pixel_rect = version >= 223 and sub_pixel_resolution and (
         roi_type == ROI_TYPE['rect'] or roi_type == ROI_TYPE['oval'])
-    #sub_pixel_rect = False
+
+    logging.debug(f"sub_pixel_resolution: {sub_pixel_resolution}")
+    logging.debug(f"draw_offset: {draw_offset}")
+    logging.debug(f"sub_pixel_rect: {sub_pixel_rect}")
 
     # Untested
     if sub_pixel_rect:
@@ -165,19 +170,18 @@ def read_roi_file(fpath):
         yd = getFloat(data, OFFSET['YD'])
         widthd = getFloat(data, OFFSET['WIDTHD'])
         heightd = getFloat(data, OFFSET['HEIGHTD'])
+        logging.debug("Entering in sub_pixel_rect")
 
     # Untested
     if hdr2Offset > 0 and hdr2Offset + HEADER_OFFSET['IMAGE_SIZE'] + 4 <= size:
         channel = get_int(data, hdr2Offset + HEADER_OFFSET['C_POSITION'])
         slice = get_int(data, hdr2Offset + HEADER_OFFSET['Z_POSITION'])
         frame = get_int(data, hdr2Offset + HEADER_OFFSET['T_POSITION'])
-        overlayLabelColor = get_int(
-            data, hdr2Offset + HEADER_OFFSET['OVERLAY_LABEL_COLOR'])
-        overlayFontSize = get_short(
-            data, hdr2Offset + HEADER_OFFSET['OVERLAY_FONT_SIZE'])
-        imageOpacity = get_byte(
-            data, hdr2Offset + HEADER_OFFSET['IMAGE_OPACITY'])
+        overlayLabelColor = get_int(data, hdr2Offset + HEADER_OFFSET['OVERLAY_LABEL_COLOR'])
+        overlayFontSize = get_short(data, hdr2Offset + HEADER_OFFSET['OVERLAY_FONT_SIZE'])
+        imageOpacity = get_byte(data, hdr2Offset + HEADER_OFFSET['IMAGE_OPACITY'])
         imageSize = get_int(data, hdr2Offset + HEADER_OFFSET['IMAGE_SIZE'])
+        logging.debug("Entering in hdr2Offset")
 
     is_composite = get_int(data, OFFSET['SHAPE_ROI_SIZE']) > 0
 
@@ -225,23 +229,19 @@ def read_roi_file(fpath):
         x = []
         y = []
         base1 = OFFSET['COORDINATES']
-        base2 = base1 + 2 * n
-        for i in range(n):
+        base2 = base1 + 2 * n_coordinates
+        for i in range(n_coordinates):
             xtmp = get_short(data, base1 + i * 2)
-            if xtmp < 0:
-                xtmp = 0
             ytmp = get_short(data, base2 + i * 2)
-            if ytmp < 0:
-                ytmp = 0
             x.append(left + xtmp)
             y.append(top + ytmp)
 
         if sub_pixel_resolution:
             xf = []
             yf = []
-            base1 = OFFSET['COORDINATES'] + 4 * n
-            base2 = base1 + 4 * n
-            for i in range(n):
+            base1 = OFFSET['COORDINATES'] + 4 * n_coordinates
+            base2 = base1 + 4 * n_coordinates
+            for i in range(n_coordinates):
                 xf.append(get_float(data, base1 + i * 4))
                 yf.append(get_float(data, base2 + i * 4))
 
@@ -249,9 +249,9 @@ def read_roi_file(fpath):
             roi = {'type': 'point'}
 
             if sub_pixel_resolution:
-                roi.update(dict(x=xf, y=yf, n=n))
+                roi.update(dict(x=xf, y=yf, n=n_coordinates))
             else:
-                roi.update(dict(x=x, y=y, n=n))
+                roi.update(dict(x=x, y=y, n=n_coordinates))
 
         if roi_type == ROI_TYPE['polygon']:
             roi = {'type': 'polygon'}
@@ -269,20 +269,24 @@ def read_roi_file(fpath):
 
         elif roi_type == ROI_TYPE['traced']:
             roi = {'type': 'traced'}
+
         elif roi_type == ROI_TYPE['polyline']:
             roi = {'type': 'polyline'}
+
         elif roi_type == ROI_TYPE['freeline']:
             roi = {'type': 'freeline'}
+
         elif roi_type == ROI_TYPE['angle']:
             roi = {'type': 'angle'}
+
         else:
             roi = {'type': 'freeroi'}
 
         if sub_pixel_resolution:
-            #roi.update(dict(x=xf, y=yf, n=n))
-            roi.update(dict(x=x, y=y, n=n))
+            roi.update(dict(x=xf, y=yf, n=n_coordinates))
+            #roi.update(dict(x=x, y=y, n=n_coordinates))
         else:
-            roi.update(dict(x=x, y=y, n=n))
+            roi.update(dict(x=x, y=y, n=n_coordinates))
     else:
         # TODO: raise an error for 'Unrecognized ROI type'
         pass
