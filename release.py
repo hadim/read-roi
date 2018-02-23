@@ -11,6 +11,11 @@ except ImportError:
 	print("Install semver. pip install semver")
 	sys.exit(-1)
 
+ret = os.system("nosetests -v -s")
+if ret != 0:
+	print("Tests didn't pass. Exiting.")
+	sys.exit(-1)
+
 setup_cfg_path = 'setup.cfg'
 main_branch = 'master'
 
