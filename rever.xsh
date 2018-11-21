@@ -11,3 +11,4 @@ $GITHUB_ORG = 'hadim'
 $GITHUB_REPO = 'read-roi'
 
 $CONDA_FORGE_FEEDSTOCK = 'read-roi-feedstock'
+$CONDA_FORGE_SOURCE_URL = 'https://pypi.io/packages/source/r/{{ name }}/read-roi-$VERSION.tar.gz'
