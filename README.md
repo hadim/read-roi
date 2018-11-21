@@ -19,13 +19,13 @@ rois = read_roi_zip(roi_zip_path)
 
 ## Note
 
-- Some format specifications are not implemented. See RoiDecoder.java for details.
-- Most of "normal" ROI file should work.
+- Some format specifications are not implemented. See `RoiDecoder.java` for details.
+- Most of "normal" ROI files should work.
 - Feel free to hack it and send me modifications.
 
 ## Requirements
 
-- Python 3.4 and above
+- Python 3.5 and above.
 
 ## Install
 
@@ -45,10 +45,3 @@ Under BSD license. See [LICENSE](LICENSE).
 ## Authors
 
 - Hadrien Mary <hadrien.mary@gmail.com>
-
-## How to release a new version
-
-- Run `python release.py`
-- Create and upload packages : `python setup.py sdist bdist_wheel && twine upload dist/*`
-- Update `conda-forge` recipe.
-
