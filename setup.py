@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 setup(name='read-roi',
-      version='1.4.3',
+      version='1.4.4',
       author='Hadrien Mary',
       author_email='hadrien.mary@gmail.com',
       url='https://github.com/hadim/read-roi/',
