@@ -47,3 +47,6 @@ docs/_build
 MANIFEST
 
 *.tif
+
+# Rever
+rever/
