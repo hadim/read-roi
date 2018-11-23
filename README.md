@@ -1,5 +1,6 @@
 # read-roi
 
+[![Build Status](https://travis-ci.com/hadim/read-roi.svg?branch=master)](https://travis-ci.com/hadim/read-roi)
 [![PyPI version](https://img.shields.io/pypi/v/read-roi.svg?maxAge=2591000)](https://pypi.org/project/read-roi/)
 
 Read ROI files .zip or .roi generated with ImageJ. Code is largely inspired from : http://rsb.info.nih.gov/ij/developer/source/ij/io/RoiDecoder.java.html
@@ -25,7 +26,7 @@ rois = read_roi_zip(roi_zip_path)
 
 ## Requirements
 
-- Python 3.5 and above.
+- Python 3.6 and above.
 
 ## Install
 
