@@ -67,7 +67,10 @@ HEADER_OFFSET = dict(C_POSITION=4,
                      AVAILABLE_BYTE1=30,
                      IMAGE_OPACITY=31,
                      IMAGE_SIZE=32,
-                     FLOAT_STROKE_WIDTH=36)
+                     FLOAT_STROKE_WIDTH=36,
+                     ROI_PROPS_OFFSET=40,
+                     ROI_PROPS_LENGTH=44,
+                     COUNTERS_OFFSET=48)
 
 SUBTYPES = dict(TEXT=1,
                 ARROW=2,
@@ -101,6 +104,24 @@ def get_int(data, base):
 def get_float(data, base):
     s = struct.pack('I', get_int(data, base))
     return struct.unpack('f', s)[0]
+
+
+def get_point_counters(data, hdr2Offset, n_coordinates):
+    if hdr2Offset == 0:
+        return []
+
+    offset = get_int(hdr2Offset + HEADER_OFFSET['COUNTERS_OFFSET'])
+    if offset == 0:
+        return []
+
+    if offset + n_coordinates * 4 > size:
+        return []
+
+    counters = []
+    for i in range(0, n_coordinates):
+        counters.append(get_int(data, offset + i * 4))
+
+    return counters
 
 
 def read_roi_file(fpath):
@@ -307,6 +328,17 @@ def read_roi_file(fpath):
         # Not implemented
         # Get image ROI
         pass
+
+    if version >= 224:
+        # Not implemented
+        # Get ROI properties
+        pass
+
+    if version > 227:
+        # Get "point counters" (= slice, i.e. z coordinate of points)
+        counters = get_point_counters(data, hdr2Offset, n_coordinates)
+        if counters and roi_type == ROI_TYPE['point']:
+            roi.update(dict(slice=counters))
 
     roi['position'] = position
     if channel > 0 or slice > 0 or frame > 0:
