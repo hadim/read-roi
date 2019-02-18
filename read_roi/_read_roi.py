@@ -6,6 +6,10 @@ import logging
 __all__ = ['read_roi_file', 'read_roi_zip']
 
 
+class UnrecognizedRoiType(Exception):
+    pass
+
+
 OFFSET = dict(VERSION_OFFSET=4,
               TYPE=6,
               TOP=8,
@@ -106,52 +110,51 @@ def get_float(data, base):
     return struct.unpack('f', s)[0]
 
 
-def get_point_counters(data, hdr2Offset, n_coordinates):
+def get_counter(data, base):
+    """
+    See setCounters() / getCounters() methods in IJ source, ij/gui/PointRoi.java.
+    """
+
+    b0 = data[base]
+    b1 = data[base + 1]
+    b2 = data[base + 2]
+    b3 = data[base + 3]
+
+    counter = b3
+    position = (b1 << 8) + b2
+
+    return counter, position
+
+
+def get_point_counters(data, hdr2Offset, n_coordinates, size):
     if hdr2Offset == 0:
-        return []
-
-    offset = get_int(hdr2Offset + HEADER_OFFSET['COUNTERS_OFFSET'])
-    if offset == 0:
-        return []
-
-    if offset + n_coordinates * 4 > size:
-        return []
-
-    counters = []
-    for i in range(0, n_coordinates):
-        counters.append(get_int(data, offset + i * 4))
-
-    return counters
-
-
-def read_roi_file(fpath):
-    """
-    """
-
-    if isinstance(fpath, zipfile.ZipExtFile):
-        data = fpath.read()
-        name = os.path.splitext(os.path.basename(fpath.name))[0]
-    elif isinstance(fpath, str):
-        fp = open(fpath, 'rb')
-        data = fp.read()
-        fp.close()
-        name = os.path.splitext(os.path.basename(fpath))[0]
-    else:
-        logging.error("Can't read {}".format(fpath))
         return None
 
-    logging.debug("Read ROI for \"{}\"".format(name))
+    offset = get_int(data, hdr2Offset + HEADER_OFFSET['COUNTERS_OFFSET'])
+    if offset == 0:
+        return None
 
+    if offset + n_coordinates * 4 > size:
+        return None
+
+    counters = []
+    positions = []
+    for i in range(0, n_coordinates):
+        cnt, position = get_counter(data, offset + i * 4)
+        counters.append(cnt)
+        positions.append(position)
+
+    return counters, positions
+
+
+def extract_basic_roi_data(data):
     size = len(data)
     code = '>'
-
-    roi = {}
 
     magic = get_byte(data, list(range(4)))
     magic = "".join([chr(c) for c in magic])
 
     # TODO: raise error if magic != 'Iout'
-
     version = get_short(data, OFFSET['VERSION_OFFSET'])
     roi_type = get_byte(data, OFFSET['TYPE'])
     subtype = get_short(data, OFFSET['SUBTYPE'])
@@ -213,6 +216,7 @@ def read_roi_file(fpath):
         if channel > 0 or slice > 0 or frame > 0:
             pass
 
+    roi_props = (hdr2Offset, n_coordinates, roi_type, channel, slice, frame, position, version, subtype, size)
     if roi_type == ROI_TYPE['rect']:
         roi = {'type': 'rectangle'}
 
@@ -223,6 +227,8 @@ def read_roi_file(fpath):
 
         roi['arc_size'] = get_short(data, OFFSET['ROUNDED_RECT_ARC_SIZE'])
 
+        return roi, roi_props
+
     elif roi_type == ROI_TYPE['oval']:
         roi = {'type': 'oval'}
 
@@ -230,6 +236,8 @@ def read_roi_file(fpath):
             roi.update(dict(left=xd, top=yd, width=widthd, height=heightd))
         else:
             roi.update(dict(left=left, top=top, width=width, height=height))
+
+        return roi, roi_props
 
     elif roi_type == ROI_TYPE['line']:
         roi = {'type': 'line'}
@@ -245,6 +253,8 @@ def read_roi_file(fpath):
         else:
             roi.update(dict(x1=x1, x2=x2, y1=y1, y2=y2))
             roi['draw_offset'] = draw_offset
+
+        return roi, roi_props
 
     elif roi_type in [ROI_TYPE[t] for t in ["polygon", "freehand", "traced", "polyline", "freeline", "angle", "point"]]:
         x = []
@@ -274,6 +284,8 @@ def read_roi_file(fpath):
             else:
                 roi.update(dict(x=x, y=y, n=n_coordinates))
 
+            return roi, roi_props
+
         if roi_type == ROI_TYPE['polygon']:
             roi = {'type': 'polygon'}
 
@@ -287,6 +299,8 @@ def read_roi_file(fpath):
                 roi['aspect_ratio'] = get_float(
                     data, OFFSET['ELLIPSE_ASPECT_RATIO'])
                 roi.update(dict(ex1=ex1, ey1=ey1, ex2=ex2, ey2=ey2))
+
+                return roi, roi_props
 
         elif roi_type == ROI_TYPE['traced']:
             roi = {'type': 'traced'}
@@ -305,13 +319,33 @@ def read_roi_file(fpath):
 
         if sub_pixel_resolution:
             roi.update(dict(x=xf, y=yf, n=n_coordinates))
-            #roi.update(dict(x=x, y=y, n=n_coordinates))
         else:
             roi.update(dict(x=x, y=y, n=n_coordinates))
-    else:
-        # TODO: raise an error for 'Unrecognized ROI type'
-        pass
 
+        return roi, roi_props
+    else:
+        raise UnrecognizedRoiType("Unrecognized ROI specifier: %d" % (roi_type, ))
+
+
+def read_roi_file(fpath):
+    """
+    """
+
+    if isinstance(fpath, zipfile.ZipExtFile):
+        data = fpath.read()
+        name = os.path.splitext(os.path.basename(fpath.name))[0]
+    elif isinstance(fpath, str):
+        fp = open(fpath, 'rb')
+        data = fp.read()
+        fp.close()
+        name = os.path.splitext(os.path.basename(fpath))[0]
+    else:
+        logging.error("Can't read {}".format(fpath))
+        return None
+
+    logging.debug("Read ROI for \"{}\"".format(name))
+
+    roi, (hdr2Offset, n_coordinates, roi_type, channel, slice, frame, position, version, subtype, size) = extract_basic_roi_data(data)
     roi['name'] = name
 
     if version >= 218:
@@ -334,11 +368,12 @@ def read_roi_file(fpath):
         # Get ROI properties
         pass
 
-    if version > 227:
-        # Get "point counters" (= slice, i.e. z coordinate of points)
-        counters = get_point_counters(data, hdr2Offset, n_coordinates)
-        if counters and roi_type == ROI_TYPE['point']:
-            roi.update(dict(slice=counters))
+    if version >= 227 and roi['type'] == 'point':
+        # Get "point counters" (includes a "counter" and a "position" (slice, i.e. z position)
+        counters, positions = get_point_counters(data, hdr2Offset, n_coordinates, size)
+        if counters is not None:
+            if counters:
+                roi.update(dict(counters=counters, slices=positions))
 
     roi['position'] = position
     if channel > 0 or slice > 0 or frame > 0:
