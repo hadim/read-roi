@@ -370,8 +370,9 @@ def read_roi_file(fpath):
 
     if version >= 227 and roi['type'] == 'point':
         # Get "point counters" (includes a "counter" and a "position" (slice, i.e. z position)
-        counters, positions = get_point_counters(data, hdr2Offset, n_coordinates, size)
-        if counters is not None:
+        tmp = get_point_counters(data, hdr2Offset, n_coordinates, size)
+        if tmp is not None:
+            counters, positions = tmp
             if counters:
                 roi.update(dict(counters=counters, slices=positions))
 

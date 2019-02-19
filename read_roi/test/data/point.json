@@ -1,6 +1,6 @@
 {
   "point": {
-    "type": "freeroi",
+    "type": "point",
     "x": [
       68.0
     ],
@@ -9,6 +9,8 @@
     ],
     "n": 1,
     "name": "point",
+	"counters": [0],
+	"slices": [1],
     "position": {
       "channel": 1,
       "slice": 1,
