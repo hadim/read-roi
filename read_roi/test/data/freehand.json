@@ -467,6 +467,7 @@
     ],
     "n": 230,
     "name": "freehand",
-    "position": 0
+    "position": 0,
+    "width": 10
   }
 }

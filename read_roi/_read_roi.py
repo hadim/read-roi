@@ -254,6 +254,9 @@ def extract_basic_roi_data(data):
             roi.update(dict(x1=x1, x2=x2, y1=y1, y2=y2))
             roi['draw_offset'] = draw_offset
 
+        strokeWidth = get_short(data, OFFSET['STROKE_WIDTH'])
+        roi.update(dict(width=strokeWidth))
+
         return roi, roi_props
 
     elif roi_type in [ROI_TYPE[t] for t in ["polygon", "freehand", "traced", "polyline", "freeline", "angle", "point"]]:
@@ -321,6 +324,9 @@ def extract_basic_roi_data(data):
             roi.update(dict(x=xf, y=yf, n=n_coordinates))
         else:
             roi.update(dict(x=x, y=y, n=n_coordinates))
+
+        strokeWidth = get_short(data, OFFSET['STROKE_WIDTH'])
+        roi.update(dict(width=strokeWidth))
 
         return roi, roi_props
     else:

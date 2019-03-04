@@ -343,6 +343,7 @@
     ],
     "n": 168,
     "name": "freeline",
-    "position": 0
+    "position": 0,
+    "width": 0
   }
 }

@@ -35,8 +35,8 @@ def test_point():
                            'name': 'point',
                            'position': {'channel': 1, 'frame': 1, 'slice': 1},
                            'type': 'point',
-						   'slices': [1],
-						   'counters': [0],
+                           'slices': [1],
+                           'counters': [0],
                            'x': [68.0],
                            'y': [77.25]}}
 
@@ -48,6 +48,7 @@ def test_line1():
                            'name': 'line1',
                            'position': 0,
                            'type': 'line',
+                           'width': 0,
                            'x1': 260.0,
                            'x2': 89.0,
                            'y1': 52.0,
@@ -61,6 +62,7 @@ def test_line2():
                            'name': 'line2',
                            'position': {'channel': 1, 'frame': 1, 'slice': 1},
                            'type': 'line',
+                           'width': 0,
                            'x1': 100.5,
                            'x2': 132.5,
                            'y1': 158.5,
@@ -73,4 +75,5 @@ def test_rois():
     names = ["freehand", "freeline", "multipoint", "oval", "point", "polygon", "polyline", "rectangle"]
     for name in names:
         true_data = load_true_data(name)
+        print(name)
         yield test_roi_data, name, true_data
