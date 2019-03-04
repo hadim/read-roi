@@ -34,7 +34,9 @@ def test_point():
     true_data = {'point': {'n': 1,
                            'name': 'point',
                            'position': {'channel': 1, 'frame': 1, 'slice': 1},
-                           'type': 'freeroi',
+                           'type': 'point',
+						   'slices': [1],
+						   'counters': [0],
                            'x': [68.0],
                            'y': [77.25]}}
 
