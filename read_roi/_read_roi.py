@@ -190,10 +190,10 @@ def extract_basic_roi_data(data):
 
     # Untested
     if sub_pixel_rect:
-        xd = getFloat(data, OFFSET['XD'])
-        yd = getFloat(data, OFFSET['YD'])
-        widthd = getFloat(data, OFFSET['WIDTHD'])
-        heightd = getFloat(data, OFFSET['HEIGHTD'])
+        xd = get_float(data, OFFSET['XD'])
+        yd = get_float(data, OFFSET['YD'])
+        widthd = get_float(data, OFFSET['WIDTHD'])
+        heightd = get_float(data, OFFSET['HEIGHTD'])
         logging.debug("Entering in sub_pixel_rect")
 
     # Untested
