@@ -89,14 +89,14 @@ def get_byte(data, base):
         return [data[b] for b in base]
 
 
-def get_short(data, base):
+def get_uint16(data, base):
     b0 = data[base]
     b1 = data[base + 1]
     n = (b0 << 8) + b1
     return n
 
 
-def get_int(data, base):
+def get_uint32(data, base):
     b0 = data[base]
     b1 = data[base + 1]
     b2 = data[base + 2]
@@ -106,7 +106,7 @@ def get_int(data, base):
 
 
 def get_float(data, base):
-    s = struct.pack('I', get_int(data, base))
+    s = struct.pack('I', get_uint32(data, base))
     return struct.unpack('f', s)[0]
 
 
@@ -130,7 +130,7 @@ def get_point_counters(data, hdr2Offset, n_coordinates, size):
     if hdr2Offset == 0:
         return None
 
-    offset = get_int(data, hdr2Offset + HEADER_OFFSET['COUNTERS_OFFSET'])
+    offset = get_uint32(data, hdr2Offset + HEADER_OFFSET['COUNTERS_OFFSET'])
     if offset == 0:
         return None
 
@@ -155,19 +155,19 @@ def extract_basic_roi_data(data):
     magic = "".join([chr(c) for c in magic])
 
     # TODO: raise error if magic != 'Iout'
-    version = get_short(data, OFFSET['VERSION_OFFSET'])
+    version = get_uint16(data, OFFSET['VERSION_OFFSET'])
     roi_type = get_byte(data, OFFSET['TYPE'])
-    subtype = get_short(data, OFFSET['SUBTYPE'])
-    top = get_short(data, OFFSET['TOP'])
-    left = get_short(data, OFFSET['LEFT'])
+    subtype = get_uint16(data, OFFSET['SUBTYPE'])
+    top = get_uint16(data, OFFSET['TOP'])
+    left = get_uint16(data, OFFSET['LEFT'])
 
     if top >= 32768:  # 2**15
         top -= 2**16
     if left >= 32768:  # 2**15
         left -= 2**16
 
-    bottom = get_short(data, OFFSET['BOTTOM'])
-    right = get_short(data, OFFSET['RIGHT'])
+    bottom = get_uint16(data, OFFSET['BOTTOM'])
+    right = get_uint16(data, OFFSET['RIGHT'])
 
     if bottom >= 32768:  # 2**15
         bottom -= 2**16
@@ -176,10 +176,10 @@ def extract_basic_roi_data(data):
 
     width = right - left
     height = bottom - top
-    n_coordinates = get_short(data, OFFSET['N_COORDINATES'])
-    options = get_short(data, OFFSET['OPTIONS'])
-    position = get_int(data, OFFSET['POSITION'])
-    hdr2Offset = get_int(data, OFFSET['HEADER2_OFFSET'])
+    n_coordinates = get_uint16(data, OFFSET['N_COORDINATES'])
+    options = get_uint16(data, OFFSET['OPTIONS'])
+    position = get_uint32(data, OFFSET['POSITION'])
+    hdr2Offset = get_uint32(data, OFFSET['HEADER2_OFFSET'])
 
     logging.debug("n_coordinates: {}".format(n_coordinates))
     logging.debug("position: {}".format(position))
@@ -204,16 +204,16 @@ def extract_basic_roi_data(data):
 
     # Untested
     if hdr2Offset > 0 and hdr2Offset + HEADER_OFFSET['IMAGE_SIZE'] + 4 <= size:
-        channel = get_int(data, hdr2Offset + HEADER_OFFSET['C_POSITION'])
-        slice = get_int(data, hdr2Offset + HEADER_OFFSET['Z_POSITION'])
-        frame = get_int(data, hdr2Offset + HEADER_OFFSET['T_POSITION'])
-        overlayLabelColor = get_int(data, hdr2Offset + HEADER_OFFSET['OVERLAY_LABEL_COLOR'])
-        overlayFontSize = get_short(data, hdr2Offset + HEADER_OFFSET['OVERLAY_FONT_SIZE'])
+        channel = get_uint32(data, hdr2Offset + HEADER_OFFSET['C_POSITION'])
+        slice = get_uint32(data, hdr2Offset + HEADER_OFFSET['Z_POSITION'])
+        frame = get_uint32(data, hdr2Offset + HEADER_OFFSET['T_POSITION'])
+        overlayLabelColor = get_uint32(data, hdr2Offset + HEADER_OFFSET['OVERLAY_LABEL_COLOR'])
+        overlayFontSize = get_uint16(data, hdr2Offset + HEADER_OFFSET['OVERLAY_FONT_SIZE'])
         imageOpacity = get_byte(data, hdr2Offset + HEADER_OFFSET['IMAGE_OPACITY'])
-        imageSize = get_int(data, hdr2Offset + HEADER_OFFSET['IMAGE_SIZE'])
+        imageSize = get_uint32(data, hdr2Offset + HEADER_OFFSET['IMAGE_SIZE'])
         logging.debug("Entering in hdr2Offset")
 
-    is_composite = get_int(data, OFFSET['SHAPE_ROI_SIZE']) > 0
+    is_composite = get_uint32(data, OFFSET['SHAPE_ROI_SIZE']) > 0
 
     # Not implemented
     if is_composite:
@@ -231,7 +231,7 @@ def extract_basic_roi_data(data):
         else:
             roi.update(dict(left=left, top=top, width=width, height=height))
 
-        roi['arc_size'] = get_short(data, OFFSET['ROUNDED_RECT_ARC_SIZE'])
+        roi['arc_size'] = get_uint16(data, OFFSET['ROUNDED_RECT_ARC_SIZE'])
 
         return roi, roi_props
 
@@ -260,7 +260,7 @@ def extract_basic_roi_data(data):
             roi.update(dict(x1=x1, x2=x2, y1=y1, y2=y2))
             roi['draw_offset'] = draw_offset
 
-        strokeWidth = get_short(data, OFFSET['STROKE_WIDTH'])
+        strokeWidth = get_uint16(data, OFFSET['STROKE_WIDTH'])
         roi.update(dict(width=strokeWidth))
 
         return roi, roi_props
@@ -271,8 +271,8 @@ def extract_basic_roi_data(data):
         base1 = OFFSET['COORDINATES']
         base2 = base1 + 2 * n_coordinates
         for i in range(n_coordinates):
-            xtmp = get_short(data, base1 + i * 2)
-            ytmp = get_short(data, base2 + i * 2)
+            xtmp = get_uint16(data, base1 + i * 2)
+            ytmp = get_uint16(data, base2 + i * 2)
             x.append(left + xtmp)
             y.append(top + ytmp)
 
@@ -331,7 +331,7 @@ def extract_basic_roi_data(data):
         else:
             roi.update(dict(x=x, y=y, n=n_coordinates))
 
-        strokeWidth = get_short(data, OFFSET['STROKE_WIDTH'])
+        strokeWidth = get_uint16(data, OFFSET['STROKE_WIDTH'])
         roi.update(dict(width=strokeWidth))
 
         return roi, roi_props
