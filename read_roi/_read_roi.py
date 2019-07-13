@@ -161,9 +161,9 @@ def extract_basic_roi_data(data):
     top = get_short(data, OFFSET['TOP'])
     left = get_short(data, OFFSET['LEFT'])
 
-    if top > 6000:
+    if top >= 32768:  # 2**15
         top -= 2**16
-    if left > 6000:
+    if left >= 32768:  # 2**15
         left -= 2**16
 
     bottom = get_short(data, OFFSET['BOTTOM'])
