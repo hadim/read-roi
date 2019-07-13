@@ -96,6 +96,13 @@ def get_uint16(data, base):
     return n
 
 
+def get_int16(data, base):
+    n = get_uint16(data, base)
+    if n >= 32768:  # 2**15
+        n -= 65536  # 2**16
+    return n
+
+
 def get_uint32(data, base):
     b0 = data[base]
     b1 = data[base + 1]
@@ -158,24 +165,15 @@ def extract_basic_roi_data(data):
     version = get_uint16(data, OFFSET['VERSION_OFFSET'])
     roi_type = get_byte(data, OFFSET['TYPE'])
     subtype = get_uint16(data, OFFSET['SUBTYPE'])
-    top = get_uint16(data, OFFSET['TOP'])
-    left = get_uint16(data, OFFSET['LEFT'])
 
-    if top >= 32768:  # 2**15
-        top -= 2**16
-    if left >= 32768:  # 2**15
-        left -= 2**16
-
-    bottom = get_uint16(data, OFFSET['BOTTOM'])
-    right = get_uint16(data, OFFSET['RIGHT'])
-
-    if bottom >= 32768:  # 2**15
-        bottom -= 2**16
-    if right >= 32768:  # 2**15
-        right -= 2**16
-
+    # Note that top, bottom, left, and right are signed integers
+    top = get_int16(data, OFFSET['TOP'])
+    left = get_int16(data, OFFSET['LEFT'])
+    bottom = get_int16(data, OFFSET['BOTTOM'])
+    right = get_int16(data, OFFSET['RIGHT'])
     width = right - left
     height = bottom - top
+
     n_coordinates = get_uint16(data, OFFSET['N_COORDINATES'])
     options = get_uint16(data, OFFSET['OPTIONS'])
     position = get_uint32(data, OFFSET['POSITION'])
