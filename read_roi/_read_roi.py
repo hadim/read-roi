@@ -168,6 +168,12 @@ def extract_basic_roi_data(data):
 
     bottom = get_short(data, OFFSET['BOTTOM'])
     right = get_short(data, OFFSET['RIGHT'])
+
+    if bottom >= 32768:  # 2**15
+        bottom -= 2**16
+    if right >= 32768:  # 2**15
+        right -= 2**16
+
     width = right - left
     height = bottom - top
     n_coordinates = get_short(data, OFFSET['N_COORDINATES'])
