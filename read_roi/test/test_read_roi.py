@@ -73,6 +73,7 @@ def test_line2():
 
 def test_rois():
     names = [
+        "ellipse",
         "freehand",
         "freeline",
         "multipoint",
