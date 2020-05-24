@@ -266,31 +266,26 @@ def extract_basic_roi_data(data):
     elif roi_type in [ROI_TYPE[t] for t in ["polygon", "freehand", "traced", "polyline", "freeline", "angle", "point"]]:
         x = []
         y = []
-        base1 = OFFSET['COORDINATES']
-        base2 = base1 + 2 * n_coordinates
-        for i in range(n_coordinates):
-            xtmp = get_uint16(data, base1 + i * 2)
-            ytmp = get_uint16(data, base2 + i * 2)
-            x.append(left + xtmp)
-            y.append(top + ytmp)
 
         if sub_pixel_resolution:
-            xf = []
-            yf = []
             base1 = OFFSET['COORDINATES'] + 4 * n_coordinates
             base2 = base1 + 4 * n_coordinates
             for i in range(n_coordinates):
-                xf.append(get_float(data, base1 + i * 4))
-                yf.append(get_float(data, base2 + i * 4))
+                x.append(get_float(data, base1 + i * 4))
+                y.append(get_float(data, base2 + i * 4))
+        else:
+            base1 = OFFSET['COORDINATES']
+            base2 = base1 + 2 * n_coordinates
+            for i in range(n_coordinates):
+                xtmp = get_uint16(data, base1 + i * 2)
+                ytmp = get_uint16(data, base2 + i * 2)
+                x.append(left + xtmp)
+                y.append(top + ytmp)
+
 
         if roi_type == ROI_TYPE['point']:
             roi = {'type': 'point'}
-
-            if sub_pixel_resolution:
-                roi.update(dict(x=xf, y=yf, n=n_coordinates))
-            else:
-                roi.update(dict(x=x, y=y, n=n_coordinates))
-
+            roi.update(dict(x=x, y=y, n=n_coordinates))
             return roi, roi_props
 
         if roi_type == ROI_TYPE['polygon']:
@@ -324,10 +319,7 @@ def extract_basic_roi_data(data):
         else:
             roi = {'type': 'freeroi'}
 
-        if sub_pixel_resolution:
-            roi.update(dict(x=xf, y=yf, n=n_coordinates))
-        else:
-            roi.update(dict(x=x, y=y, n=n_coordinates))
+        roi.update(dict(x=x, y=y, n=n_coordinates))
 
         strokeWidth = get_uint16(data, OFFSET['STROKE_WIDTH'])
         roi.update(dict(width=strokeWidth))
