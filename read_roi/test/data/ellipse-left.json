@@ -1,0 +1,12 @@
+{
+  "ellipse-left": {
+    "type": "freehand",
+    "aspect_ratio": 0.8332127332687378,
+    "ex1": 1.6875,
+    "ey1": 1.875,
+    "ex2": -1.625,
+    "ey2": 6.46875,
+    "name": "ellipse-left",
+    "position": 0
+  }
+}

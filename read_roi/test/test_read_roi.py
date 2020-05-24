@@ -74,12 +74,18 @@ def test_line2():
 def test_rois():
     names = [
         "ellipse",
+        "ellipse-left",
+        "ellipse-top",
         "freehand",
         "freeline",
         "multipoint",
         "oval",
+        "oval-left",
+        "oval-top",
         "point",
         "polygon",
+        "polygon-left",
+        "polygon-top",
         "polyline",
         "rectangle",
     ]
