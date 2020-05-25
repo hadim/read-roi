@@ -16,7 +16,15 @@ def load_data(name):
 
 def load_true_data(name):
     fname = os.path.join(data_dir, name + ".json")
-    return json.load(open(fname))
+    data = json.load(open(fname))
+    true_name = list(data.keys())[0]
+    if 'paths' in data[true_name]:
+        # Convert segment nodes from list to tuples
+        data[true_name]['paths'] = [
+            [tuple(segment) for segment in path]
+            for path in data[true_name]['paths']
+        ]
+    return data
 
 
 @nottest
@@ -73,6 +81,12 @@ def test_line2():
 
 def test_rois():
     names = [
+        "composite-brush-donut",
+        "composite-brush-yin-yang",
+        "composite-oval-in-rect",
+        "composite-rect-in-rect",
+        "composite-two-ellipses",
+        "composite-two-ovals",
         "ellipse",
         "ellipse-left",
         "ellipse-top",
