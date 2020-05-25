@@ -6,6 +6,10 @@ matrix:
     - language: python
       os: linux
       env:
+        - PYTHON_VERSION="3.5"
+    - language: python
+      os: linux
+      env:
         - PYTHON_VERSION="3.6"
     - language: python
       os: linux
