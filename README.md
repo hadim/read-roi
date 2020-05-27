@@ -47,3 +47,10 @@ Under BSD license. See [LICENSE](LICENSE).
 ## Authors
 
 - Hadrien Mary <hadrien.mary@gmail.com>
+
+## Release a new version
+
+- Run tests: `pytest -v read_roi/`.
+- Install [rever](https://regro.github.io/rever-docs): `conda install -y rever`.
+- Run check: `rever check`.
+- Bump and release new version: `rever VERSION_NUMBER`.
