@@ -81,6 +81,13 @@ SUBTYPES = dict(TEXT=1,
                 ELLIPSE=3,
                 IMAGE=4)
 
+# https://docs.oracle.com/javase/6/docs/api/constant-values.html#java.awt.geom.PathIterator
+PATHITERATOR_TYPES = dict(SEG_MOVETO=0,
+                          SEG_LINETO=1,
+                          SEG_QUADTO=2,
+                          SEG_CUBICTO=3,
+                          SEG_CLOSE=4)
+
 
 def get_byte(data, base):
     if isinstance(base, int):
@@ -170,6 +177,84 @@ def get_point_counters(data, hdr2Offset, n_coordinates, size):
     return counters, positions
 
 
+def pathiterator2paths(shape_array):
+    """
+    Converts a shape array in PathIterator notation to polygon (or curved)
+    paths.
+
+    Parameters
+    ----------
+    shape_array : list of floats
+        paths encoded in `java.awt.geom.PathIterator` format. Each segment
+        within the path begins with a header value,
+
+            0 : Move operation
+            1 : Line segment
+            2 : Quadratic segment
+            3 : Cubic segment
+            4 : Terminate path
+
+        followed by a number of values describing the path along the segment
+        to the next node. In the case of a termination operation, the current
+        path ends, whilst for a move operation a new path begins with a new
+        node described whose co-ordinate is given by the next two value in
+        `shape_array`.
+
+    Returns
+    -------
+    paths : list of lists of tuples
+        The `segements` output contains a list of path paths. Each path
+        is a list of points along the path. In its simplest form, each tuple
+        in the list has length two, corresponding to a nodes along a polygon
+        shape. Tuples of length 4 or 6 correspond to quadratic and cubic paths
+        (respectively) from the previous node.
+        ImageJ ROIs are only known to output linear segments (even with
+        ellipses with subpixel precision enabled), so it is expected that all
+        segments along the path should be length two tuples containing only the
+        co-ordinates of the next point on the polygonal path.
+
+    Notes
+    -----
+    Based on the ShapeRoi constructor "from an array of variable length path
+    segments" and `makeShapeFromArray`, as found in:
+    https://imagej.nih.gov/ij/developer/source/ij/gui/ShapeRoi.java.html
+    With further reference to its `PathIterator` dependency, as found in:
+    https://docs.oracle.com/javase/6/docs/api/constant-values.html#java.awt.geom.PathIterator
+    """
+    paths = []
+    path = None
+    i = 0
+    while i < len(shape_array):
+        segmentType = shape_array[i]
+        if segmentType == PATHITERATOR_TYPES["SEG_MOVETO"]:
+            # Move to
+            if path is not None:
+                paths.append(path)
+            # Start a new segment with a node at this point
+            path = []
+            nCoords = 2
+        elif segmentType == PATHITERATOR_TYPES["SEG_LINETO"]:
+            # Line to next point
+            nCoords = 2
+        elif segmentType == PATHITERATOR_TYPES["SEG_QUADTO"]:
+            # Quadratic curve to next point
+            nCoords = 4
+        elif segmentType == PATHITERATOR_TYPES["SEG_CUBICTO"]:
+            # Cubic curve to next point
+            nCoords = 6
+        elif segmentType == PATHITERATOR_TYPES["SEG_CLOSE"]:
+            # Segment close
+            paths.append(path)
+            path = None
+            i += 1
+            continue
+        if path is None:
+            raise ValueError("A path must begin with a move operation.")
+        path.append(tuple(shape_array[i + 1 : i + 1 + nCoords]))
+        i += 1 + nCoords
+    return paths
+
+
 def extract_basic_roi_data(data):
     size = len(data)
     code = '>'
@@ -233,16 +318,38 @@ def extract_basic_roi_data(data):
         imageSize = get_uint32(data, hdr2Offset + HEADER_OFFSET['IMAGE_SIZE'])
         logging.debug("Entering in hdr2Offset")
 
-    is_composite = get_uint32(data, OFFSET['SHAPE_ROI_SIZE']) > 0
-
-    # Not implemented
-    if is_composite:
-        if version >= 218:
-            pass
-        if channel > 0 or slice > 0 or frame > 0:
-            pass
-
     roi_props = (hdr2Offset, n_coordinates, roi_type, channel, slice, frame, position, version, subtype, size)
+
+    shape_roi_size = get_uint32(data, OFFSET['SHAPE_ROI_SIZE'])
+    is_composite = shape_roi_size > 0
+
+    if is_composite:
+        roi = {'type': 'composite'}
+
+        # Add bounding box rectangle details
+        if sub_pixel_rect:
+            roi.update(dict(left=xd, top=yd, width=widthd, height=heightd))
+        else:
+            roi.update(dict(left=left, top=top, width=width, height=height))
+
+        # Load path iterator shape array and decode it into paths
+        base = OFFSET['COORDINATES']
+        shape_array = [get_float(data, base + i * 4) for i in range(shape_roi_size)]
+        roi['paths'] = pathiterator2paths(shape_array)
+
+        # NB: Handling position of roi is implemented in read_roi_file
+
+        if version >= 218:
+            # Not implemented
+            # Read stroke width, stroke color and fill color
+            pass
+        if version >= 224:
+            # Not implemented
+            # Get ROI properties
+            pass
+
+        return roi, roi_props
+
     if roi_type == ROI_TYPE['rect']:
         roi = {'type': 'rectangle'}
 
