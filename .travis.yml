@@ -18,3 +18,8 @@ install:
 
 script:
   - coverage run --source read_roi --omit '*/*test*/*' -m nose -v -s .
+
+after_success:
+  - |
+    curl -s -S -L --connect-timeout 5 --retry 6 https://codecov.io/bash -o codecov-upload.sh || echo "Codecov script failed to download";
+    travis_retry bash codecov-upload.sh || echo "Codecov push failed";
