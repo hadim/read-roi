@@ -6,11 +6,19 @@ matrix:
     - language: python
       os: linux
       env:
+        - PYTHON_VERSION="3.5"
+    - language: python
+      os: linux
+      env:
         - PYTHON_VERSION="3.6"
     - language: python
       os: linux
       env:
         - PYTHON_VERSION="3.7"
+    - language: python
+      os: linux
+      env:
+        - PYTHON_VERSION="3.8"
 
 install:
   - sudo apt-get update
