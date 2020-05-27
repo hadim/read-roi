@@ -72,7 +72,23 @@ def test_line2():
 
 
 def test_rois():
-    names = ["freehand", "freeline", "multipoint", "oval", "point", "polygon", "polyline", "rectangle"]
+    names = [
+        "ellipse",
+        "ellipse-left",
+        "ellipse-top",
+        "freehand",
+        "freeline",
+        "multipoint",
+        "oval",
+        "oval-left",
+        "oval-top",
+        "point",
+        "polygon",
+        "polygon-left",
+        "polygon-top",
+        "polyline",
+        "rectangle",
+    ]
     for name in names:
         true_data = load_true_data(name)
         print(name)

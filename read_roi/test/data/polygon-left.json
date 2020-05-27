@@ -1,0 +1,25 @@
+{
+  "polygon-left": {
+    "type": "polygon",
+    "x": [
+      0,
+      2,
+      2,
+      0,
+      -1,
+      -2
+    ],
+    "y": [
+      2,
+      3,
+      5,
+      6,
+      5,
+      3
+    ],
+    "n": 6,
+    "width": 0,
+    "name": "polygon-left",
+    "position": 0
+  }
+}

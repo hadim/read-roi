@@ -1,0 +1,11 @@
+{
+  "oval-left": {
+    "type": "oval",
+    "left": -3,
+    "top": 1,
+    "width": 6,
+    "height": 6,
+    "name": "oval-left",
+    "position": 0
+  }
+}
