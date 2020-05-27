@@ -1,7 +1,8 @@
 # read-roi
 
-[![Build Status](https://travis-ci.com/hadim/read-roi.svg?branch=master)](https://travis-ci.com/hadim/read-roi)
 [![PyPI version](https://img.shields.io/pypi/v/read-roi.svg?maxAge=2591000)](https://pypi.org/project/read-roi/)
+[![Build Status](https://travis-ci.com/hadim/read-roi.svg?branch=master)](https://travis-ci.com/hadim/read-roi)
+[![codecov](https://codecov.io/gh/hadim/read-roi/branch/master/graph/badge.svg)](https://codecov.io/gh/hadim/read-roi)
 
 Read ROI files .zip or .roi generated with ImageJ. Code is largely inspired from : http://rsb.info.nih.gov/ij/developer/source/ij/io/RoiDecoder.java.html
 
