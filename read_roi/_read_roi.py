@@ -103,6 +103,22 @@ def get_int16(data, base):
     return n
 
 
+def get_maybe_int16(data, base, thr=65036):
+    """
+    Load data which might be int16 or uint16.
+    """
+    n = get_uint16(data, base)
+    if thr < 32768:
+        raise ValueError(
+            "Threshold for distinguishing between int16 and uint16 must be"
+            " at least 2^15 = 32768, but {} was given.".format(thr)
+        )
+    if n >= thr:
+        # Convert to uint16
+        n -= 65536  # 2**16
+    return n
+
+
 def get_uint32(data, base):
     b0 = data[base]
     b1 = data[base + 1]
@@ -166,11 +182,17 @@ def extract_basic_roi_data(data):
     roi_type = get_byte(data, OFFSET['TYPE'])
     subtype = get_uint16(data, OFFSET['SUBTYPE'])
 
-    # Note that top, bottom, left, and right are signed integers
-    top = get_int16(data, OFFSET['TOP'])
-    left = get_int16(data, OFFSET['LEFT'])
-    bottom = get_int16(data, OFFSET['BOTTOM'])
-    right = get_int16(data, OFFSET['RIGHT'])
+    # Note that top, bottom, left, and right may be signed integers
+    top = get_maybe_int16(data, OFFSET['TOP'])
+    left = get_maybe_int16(data, OFFSET['LEFT'])
+    if top >= 0:
+        bottom = get_uint16(data, OFFSET['BOTTOM'])
+    else:
+        bottom = get_maybe_int16(data, OFFSET['BOTTOM'])
+    if left >= 0:
+        right = get_uint16(data, OFFSET['RIGHT'])
+    else:
+        right = get_maybe_int16(data, OFFSET['RIGHT'])
     width = right - left
     height = bottom - top
 
