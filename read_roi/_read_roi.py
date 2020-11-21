@@ -316,9 +316,13 @@ def extract_basic_roi_data(data):
         overlayFontSize = get_uint16(data, hdr2Offset + HEADER_OFFSET['OVERLAY_FONT_SIZE'])
         imageOpacity = get_byte(data, hdr2Offset + HEADER_OFFSET['IMAGE_OPACITY'])
         imageSize = get_uint32(data, hdr2Offset + HEADER_OFFSET['IMAGE_SIZE'])
+        # abb, read group from file
+        group = get_byte(data, hdr2Offset + HEADER_OFFSET['AVAILABLE_BYTE1'])
         logging.debug("Entering in hdr2Offset")
 
-    roi_props = (hdr2Offset, n_coordinates, roi_type, channel, slice, frame, position, version, subtype, size)
+    # abb, append group to tuple
+    #roi_props = (hdr2Offset, n_coordinates, roi_type, channel, slice, frame, position, version, subtype, size)
+    roi_props = (hdr2Offset, n_coordinates, roi_type, channel, slice, frame, position, version, subtype, size, group)
 
     shape_roi_size = get_uint32(data, OFFSET['SHAPE_ROI_SIZE'])
     is_composite = shape_roi_size > 0
@@ -476,9 +480,13 @@ def read_roi_file(fpath):
 
     logging.debug("Read ROI for \"{}\"".format(name))
 
-    roi, (hdr2Offset, n_coordinates, roi_type, channel, slice, frame, position, version, subtype, size) = extract_basic_roi_data(data)
+    # abb, append group to returned (assigned) tuple
+    #roi, (hdr2Offset, n_coordinates, roi_type, channel, slice, frame, position, version, subtype, size) = extract_basic_roi_data(data)
+    roi, (hdr2Offset, n_coordinates, roi_type, channel, slice, frame, position, version, subtype, size, group) = extract_basic_roi_data(data)
     roi['name'] = name
-
+    # abb, add group to dict
+    roi['group'] = group
+    
     if version >= 218:
         # Not implemented
         # Read stroke width, stroke color and fill color
