@@ -33,7 +33,7 @@ rois = read_roi_zip(roi_zip_path)
 
 `pip install read-roi`
 
-Or you can use Anaconda and `conda-forge` :
+Or you can use Anaconda and `conda-forge`:
 
 ```
 conda config --add channels conda-forge
