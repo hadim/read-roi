@@ -2,7 +2,12 @@ import os
 import json
 
 from unittest import TestCase
-from nose.tools import nottest
+try:
+    from nose.tools import nottest
+except ImportError:
+    # Do-nothing decorator: ok when the test runner is nose2
+    def nottest(func):
+        return func
 
 import read_roi
 
